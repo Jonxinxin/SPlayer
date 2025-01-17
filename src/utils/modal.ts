@@ -4,7 +4,7 @@ import { isLogin } from "./auth";
 import { isArray, isFunction } from "lodash-es";
 import { useDataStore } from "@/stores";
 import router from "@/router";
-import Login from "@/components/Modal/Login.vue";
+import Login from "@/components/Modal/Login/Login.vue";
 import JumpArtist from "@/components/Modal/JumpArtist.vue";
 import UserAgreement from "@/components/Modal/UserAgreement.vue";
 import SongInfoEditor from "@/components/Modal/SongInfoEditor.vue";
@@ -16,6 +16,7 @@ import UpdatePlaylist from "@/components/Modal/UpdatePlaylist.vue";
 import DownloadSong from "@/components/Modal/DownloadSong.vue";
 import MainSetting from "@/components/Setting/MainSetting.vue";
 import UpdateApp from "@/components/Modal/UpdateApp.vue";
+import ExcludeKeywords from "@/components/Modal/ExcludeKeywords.vue";
 
 // 用户协议
 export const openUserAgreement = () => {
@@ -101,7 +102,7 @@ export const openSongInfoEditor = (song: SongType) => {
 // 添加到歌单
 export const openPlaylistAdd = (data: SongType[], isLocal: boolean) => {
   if (!data.length) return window.$message.warning("请正确选择歌曲");
-  if (!isLogin()) return openUserLogin();
+  if (!isLogin() && !isLocal) return openUserLogin();
   const modal = window.$modal.create({
     preset: "card",
     transformOrigin: "center",
@@ -176,7 +177,7 @@ export const openUpdatePlaylist = (id: number, data: CoverType, func: () => Prom
         onSuccess: () => {
           modal.destroy();
           // 触发回调
-          isFunction(func) && func();
+          if (isFunction(func)) func();
         },
       });
     },
@@ -230,6 +231,20 @@ export const openUpdateApp = (data: UpdateInfoType) => {
     title: "发现新版本",
     content: () => {
       return h(UpdateApp, { data, onClose: () => modal.destroy() });
+    },
+  });
+};
+
+// 歌词排除内容
+export const openLyricExclude = () => {
+  window.$modal.create({
+    preset: "card",
+    transformOrigin: "center",
+    autoFocus: false,
+    style: { width: "600px" },
+    title: "歌词排除内容",
+    content: () => {
+      return h(ExcludeKeywords);
     },
   });
 };
